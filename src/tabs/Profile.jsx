@@ -3,20 +3,20 @@
  * @flow strict-local
  */
 import React, {useState, useEffect, useContext} from 'react';
-import axios from 'axios';
 //import {Spinner} from 'native-base';
 import {View, TextInput, Text, Button, SafeAreaView, StyleSheet} from 'react-native';
+import { AuthContext } from '../AuthContext';
 
 const Profile = (props) => {
   const [userName, setUserName] = useState();
 
-  const {signOut} = useContext(AuthContext);
+  const authContext = useContext(AuthContext);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
 
-        const resp = await axios('https://api.tel-aviv.gov.il/ps/me', { withCredentials: true });
+        const resp = await authContext.API.get('/me', { withCredentials: true });
         console.log(resp.data);
         setUserName(resp.data.userName);
       } catch (error) {

@@ -1,7 +1,7 @@
 /**
  * @format
  */
-import React, {useState, useEffect, useContext} from 'react';
+import React, {forwardRef, useState, useEffect, useContext} from 'react';
 import _ from 'lodash';
 import moment from 'moment';
 import {
@@ -13,65 +13,21 @@ import {
   Button,
   TouchableOpacity,
 } from 'react-native';
-import { Text}  from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { SectionList, Text}  from 'react-native';
+import DatePicker, { registerLocale, CalendarContainer } from 'react-datepicker';
+import he from 'date-fns/locale/he';
+registerLocale('he', he);
 
-import {LocaleConfig} from 'react-native-calendars';
-LocaleConfig.locales['en'] = {
-  monthNames: [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'Juny',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-  ],
-  monthNamesShort: [
-    'Jan.',
-    'Feb.',
-    'Mar.',
-    'Apr.',
-    'May',
-    'Jun.',
-    'Jul.',
-    'Aug.',
-    'Sep.',
-    'Oct.',
-    'Nov.',
-    'Dec.',
-  ],
-  dayNames: [
-    'Sunday',
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-  ],
-  dayNamesShort: ['Sun.', 'Mon.', 'Tue.', 'Wed.', 'Thu.', 'Fri.', 'Sat.'],
-  today: 'Today',
-};
-LocaleConfig.defaultLocale = 'en';
+import "react-datepicker/dist/react-datepicker.css";
+import { getMonth, getYear } from 'date-fns'
 
-import {
-  ExpandableCalendar,
-  AgendaList,
-  CalendarProvider,
-} from 'react-native-calendars';
-import DataContext from '../DataContext';
+import { DataContext } from '../DataContext';
 
 const themeColor = '#00AAAF';
 const lightThemeColor = '#EBF9F9';
 
 const Reports = ({route, navigation}) => {
-  // const [date, setDate] = useState(new Date());
+  const [startDate, setStartDate] = useState(new Date());
   const [monthlyReportData, setMonthlyReportData] = useState([]);
   const {reportData, daysOff} = useContext(DataContext);
   console.log(reportData);
@@ -80,70 +36,28 @@ const Reports = ({route, navigation}) => {
   // const bs = React.createRef();
 
   useEffect(() => {
-    const _data = reportData.map((item) => {
-      const date = moment(item.rdate).format('YYYY-MM-DD');
+    if( reportData.length > 0 )
+    {
+      const _data = reportData.map((item) => {
+        const date = moment(item.rdate).format('YYYY-MM-DD');
 
-      return {
-        title: date,
-        data: [
-          {
-            entry: item.entry,
-            exit: item.exit,
-            total: item.total,
-            notes: item.notes,
-            date: date,
-          },
-        ],
-      };
-    });
+        return {
+          title: date,
+          data: [
+            {
+              entry: item.entry,
+              exit: item.exit,
+              total: item.total,
+              notes: item.notes,
+              date: date,
+            },
+          ],
+        };
+      });
 
-    setMonthlyReportData(_data);
+      setMonthlyReportData(_data);
+    }
   }, [reportData]);
-
-  const getTheme = () => {
-    const disabledColor = 'grey';
-
-    return {
-      // arrows
-      arrowColor: 'black',
-      arrowStyle: {padding: 0},
-      // month
-      monthTextColor: 'black',
-      textMonthFontSize: 16,
-      textMonthFontFamily: 'HelveticaNeue',
-      textMonthFontWeight: 'bold',
-      // day names
-      textSectionTitleColor: 'black',
-      textDayHeaderFontSize: 12,
-      textDayHeaderFontFamily: 'HelveticaNeue',
-      textDayHeaderFontWeight: 'normal',
-      // dates
-      dayTextColor: themeColor,
-      textDayFontSize: 18,
-      textDayFontFamily: 'HelveticaNeue',
-      textDayFontWeight: '500',
-      textDayStyle: {marginTop: Platform.OS === 'android' ? 2 : 4},
-      // selected date
-      selectedDayBackgroundColor: themeColor,
-      selectedDayTextColor: 'white',
-      // disabled date
-      textDisabledColor: disabledColor,
-      // dot (marked date)
-      dotColor: themeColor,
-      selectedDotColor: 'white',
-      disabledDotColor: disabledColor,
-      dotStyle: {marginTop: -2},
-    };
-  };
-
-  const onDateChanged = (/* date, updateSource */) => {
-    // console.warn('ExpandableCalendarScreen onDateChanged: ', date, updateSource);
-    // fetch and set data for date + week ahead
-  };
-
-  const onMonthChange = (/* month, updateSource */) => {
-    // console.warn('ExpandableCalendarScreen onMonthChange: ', month, updateSource);
-  };
 
   const itemPressed = (item) => {
     // setEditingRecord(item);
@@ -185,12 +99,12 @@ const Reports = ({route, navigation}) => {
           <Text style={styles.itemDurationText}>Total: {item.total}</Text>
         </View>
         <View style={styles.cellItem}>
-          <Icon
+          {/* <Icon
             active={false}
             type="Ionicons"
             name={'checkmark-circle'}
             style={iconClassName}
-          />
+          /> */}
         </View>
         <Text style={[styles.itemTitleText, styles.cellItem]}>
           {item.notes}
@@ -199,124 +113,56 @@ const Reports = ({route, navigation}) => {
     );
   };
 
-  const getMarkedDates = () => {
-    const marked = {};
-    // ITEMS.forEach((item) => {
-    //   // NOTE: only mark dates with data
-    //   if (item.data && item.data.length > 0 && !_.isEmpty(item.data[0])) {
-    //     marked[item.title] = {marked: true, dotColor: 'red', disabled: true};
-    //   }
-    // });
-    monthlyReportData.forEach((item) => {
-      if (item.data && item.data.length > 0 && !_.isEmpty(item.data[0])) {
-        marked[item.notes] = {marked: true, dotColor: 'green'};
-      }
-    });
-    // monthlyReportData.forEach((item) => {
-    //   marked[item.title] = item.isWorkingDay
-    //     ? {disabled: false}
-    //     : {marked: true, disabled: true};
-    // });
-    daysOff.forEach((item) => {
-      const propName = moment(item).format('YYYY-MM-DD');
-      marked[propName] = {marked: true, dotColor: 'grey', disabled: true};
-    });
-    return marked;
-  };
+  const HebContainer = ( {className, children}) => {
+    return (
+      <View style={{direction: 'rtl'}}>
+        <CalendarContainer>
+          {children}
+        </CalendarContainer>
+      </View>
+    )
+  }
 
-  // const renderContent = () => {
-  //   return edtingRecord ? (
-  //     <Form>
-  //       <View style={styles.panel}>
-  //         <Item fixedLabel>
-  //           <Text style={styles.panelTitle}>
-  //             {moment(edtingRecord.date, 'YYYY-MM-DD').format('DD/MM/YYYY')}
-  //           </Text>
-  //         </Item>
-  //         <Item>
-  //           <Label>Entry:</Label>
-  //           <Text style={styles.panelSubtitle} onPress={onEntryTimeEditing}>
-  //             {edtingRecord.entry}
-  //           </Text>
-  //         </Item>
-  //         <Item>
-  //           <Label>Exit:</Label>
-  //           <Text style={styles.panelSubtitle} onPress={onExitTimeEditing}>
-  //             {edtingRecord.exit}
-  //           </Text>
-  //         </Item>
-  //         <Item>
-  //           <Label>Notes:</Label>
-  //           <TextInput value={edtingRecord.notes} />
-  //         </Item>
-  //         <View style={styles.panelButton}>
-  //           <Text style={styles.panelButtonTitle}>Apply</Text>
-  //         </View>
+  const StyledMonthInput = forwardRef( ({value, onClick}, ref) => {
+    return <View style={styles.fixToText}>
+                <button ref={ref} 
+                    className='monthInput'
+                    onClick={onClick}>{value}</button>
+            </View>
+  });
 
-  //       </View>
-  //     </Form>
-  //   ) : null;
-  // };
-
-  // const renderHeader = () => (
-  //   <View style={styles.header}>
-  //     <View style={styles.panelHeader}>
-  //       <View style={styles.panelHandle} />
-  //     </View>
-  //   </View>
-  // );
+  const onMonthChange = (date) => {
+    console.log(`${getMonth(date)+1}/${getYear(date)}`)
+    setStartDate(date)
+  }
 
   return (
-    <CalendarProvider
-      date={
-        monthlyReportData.length > 0 ? monthlyReportData[0].title : new Date()
-      }
-      onDateChanged={onDateChanged}
-      onMonthChange={onMonthChange}
-      showTodayButton
-      disabledOpacity={0.6}
-      // theme={{
-      //   todayButtonTextColor: themeColor
-      // }}
-      // todayBottomMargin={16}
-    >
-      <ExpandableCalendar
-        horizontal={true}
-        // hideArrows
-        // disablePan
-        // hideKnob
-        // initialPosition={ExpandableCalendar.positions.OPEN}
-        displayLoadingIndicator
-        calendarStyle={styles.calendar}
-        headerStyle={styles.calendar} // for horizontal only
-        // disableWeekScroll
-        theme={getTheme()}
-        firstDay={0}
-        markedDates={getMarkedDates()} // {'2019-06-01': {marked: true}, '2019-06-02': {marked: true}, '2019-06-03': {marked: true}};
-        leftArrowImageSource={require('../img/previous.png')}
-        rightArrowImageSource={require('../img/next.png')}
-      />
-      <View style={styles.container}>
-        {/* <BottomSheet
-          ref={bs}
-          snapPoints={[500, 250, 0]}
-          renderContent={renderContent}
-          renderHeader={renderHeader}
-          initialSnap={2}
-        /> */}
-        <AgendaList
-          sections={monthlyReportData}
-          renderItem={renderItem}
-          // sectionStyle={styles.section}
-        />
-      </View>
-    </CalendarProvider>
+    <View styles={styles.container}>
+          <DatePicker
+              calendarContainer={HebContainer}
+              selected={startDate}
+              locale="he"
+              customInput={<StyledMonthInput />}
+              onChange={ onMonthChange }
+              dateFormat="MM/yyyy"
+              showMonthYearPicker
+          />
+          <SectionList 
+              sections={[{title: 'aa',
+                          data: ['Alex', 'Alina']}]}
+              renderItem={ renderItem }
+              keyExtractor={(item, index) => index}/>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  fitToText: {
+    flexDirection: 'row',
+    justifyContent: 'space-between'
   },
   calendar: {
     paddingLeft: 20,

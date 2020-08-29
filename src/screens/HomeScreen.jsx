@@ -1,60 +1,49 @@
 /**
  * @format
  */
-import React, {useState, useEffect, useReducer} from 'react';
+import React, {useState, useEffect, useContext, useReducer} from 'react';
 import axios from 'axios';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { NavigationContainer } from '@react-navigation/native';
 
 import Reports from '../tabs/Reports';
 import Profile from '../tabs/Profile';
-import NotificationsTab from '../tabs/NotificationsTab';
+import Notifications from '../tabs/Notifications';
 
-import DataContext from '../DataContext';
+import { AuthContext } from '../AuthContext';
+import { DataContext } from '../DataContext';
 
-const Tab = createBottomTabNavigator();
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+const Tabs = createBottomTabNavigator();
 
-const MyTabs = (props) => {
-  return (
-    <Tab.Navigator
-      initialRouteName="Reports"
-      tabBarOptions={{
-        activeTintColor: '#e91e63',
-      }}>
-      <Tab.Screen
-        name="Reports"
-        component={Reports}
-        initialParams={props.reportData}
-        options={{
-          tabBarLabel: 'Reports',
-          tabBarIcon: ({color, size}) => (
-            <Icon name="ios-home" color={color} size={size} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Notifications"
-        component={NotificationsTab}
-        options={{
-          tabBarLabel: 'Inbox',
-          tabBarIcon: ({color, size}) => (
-            <Icon name="ios-notifications" color={color} size={size} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Profile"
-        component={Profile}
-        options={{
-          tabBarLabel: 'Profile',
-          tabBarIcon: ({color, size}) => (
-            <Icon name="ios-person" color={color} size={size} />
-          ),
-        }}
-      />
-    </Tab.Navigator>
-  );
-};
+const HavanaTabs = (props) => 
+    <Tabs.Navigator
+        initialRouteName="Reports"
+        tabBarOptions={{
+            activeTintColor: '#e91e63',
+        }}>
+        <Tabs.Screen
+            name="Reports"
+            component={Reports}
+            initialParams={props.reportData}
+            options={{
+                tabBarLabel: 'Reports'
+            }}
+        />
+        <Tabs.Screen
+            name="Notifications"
+            component={Notifications}
+            options={{
+              tabBarLabel: 'Inbox',
+            }}
+        />
+        <Tabs.Screen
+            name="Profile"
+            component={Profile}
+            options={{
+                tabBarLabel: 'Profile'
+            }}
+        />              
+    </Tabs.Navigator>
 
 const dataReducer = (prevState, action) => {
   switch (action.type) {
@@ -91,6 +80,8 @@ const HomeScreen = (props) => {
   };
   const [reportData, dispatch] = useReducer(dataReducer, initialState);
 
+  const authContext = useContext(AuthContext);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -102,14 +93,9 @@ const HomeScreen = (props) => {
         let data = [];
 
         let respArr = await axios.all([
-          axios(
-            `http://bizdev01/ps/daysoff?year=${year}&month=${month}`, { withCredentials: true }),
-   
-          axios(
-            `http://bizdev01/ps/me/reports/status?month=${month}&year=${year}`, { withCredentials: true }),
- 
-          axios(
-            `http://bizdev01/ps/me/manual_updates?year=${year}&month=${month}`, { withCredentials: true })
+            authContext.API.get(`/daysoff?year=${year}&month=${month}`, { withCredentials: true }),
+            authContext.API.get(`/me/reports/status?month=${month}&year=${year}`, { withCredentials: true }),
+            authContext.API.get(`/me/manual_updates?year=${year}&month=${month}`, { withCredentials: true })
         ]);
         data = respArr[0].data.items.map(
           (item) => new Date(Date.parse(item.date)),
@@ -130,24 +116,12 @@ const HomeScreen = (props) => {
           if (savedReportId) {
             // Interim report found. Actually the following call gets
             // the merged report: saved changes over the original data
-            _resp = await axios(
-              `https://api.tel-aviv.gov.il/ps/me/reports/saved?savedReportGuid=${savedReportId}`,
-              {
-                headers: {
-                  Authorization: `Bearer ${accessToken}`,
-                },
-              },
+            _resp = await authContext.API.get(`/me/reports/saved?savedReportGuid=${savedReportId}`, { withCredentials: true }
             );
           } else {
             reportId = respArr[1].data.reportId;
 
-            _resp = await axios(
-              `https://api.tel-aviv.gov.il/me/reports/${reportId}/updates`,
-              {
-                headers: {
-                  Authorization: `Bearer ${accessToken}`,
-                },
-              },
+            _resp = awaitauthContext.API.get(`/me/reports/${reportId}/updates`, { withCredentials: true },
             );
           }
 
@@ -160,13 +134,7 @@ const HomeScreen = (props) => {
         } else {
           // The status of the report is unknown, i.e. get the original report
 
-          const resp = await axios(
-            `https://api.tel-aviv.gov.il/ps/me/reports/${year}/${month}`,
-            {
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-              },
-            },
+          const resp = await authContext.API.get(`/me/reports/${year}/${month}`, { withCredentials: true }
           );
 
           data = resp.data.items.map((item, index) => {
@@ -185,7 +153,9 @@ const HomeScreen = (props) => {
 
   return (
     <DataContext.Provider value={reportData}>
-      <MyTabs />
+      <NavigationContainer>
+        <HavanaTabs />
+      </NavigationContainer>
     </DataContext.Provider>
   );
 };

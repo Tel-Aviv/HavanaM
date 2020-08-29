@@ -1,27 +1,22 @@
 var path = require('path');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const WebpackCopyAfterBuildPlugin = require('webpack-copy-after-build-plugin');
+//const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+//const WebpackCopyAfterBuildPlugin = require('webpack-copy-after-build-plugin');
 
 module.exports = {
-    entry: {
+    entry: { 
         mobile: [path.resolve(__dirname, './src/index.jsx')]
     },
-    plugins: [
-        new CleanWebpackPlugin({
-            verbose: true,
-            cleanStaleWebpackAssets: true
-        }),
-        new WebpackCopyAfterBuildPlugin({
-            "mobile":
-            "C:\\Dev\\Havana\\PS\\mobile.bundle.js",
-          })
-    ],
+
     module: {
         rules: [
             {
                 test: /\.(js|jsx)$/,
                 use: ['babel-loader']
             },
+            {
+                test: /\.css$/,
+                use: ['style-loader', 'css-loader']
+            },  
             {
                 test: /\.(gif|png|jpe?g|svg)$/i,
                 use: ['file-loader']
