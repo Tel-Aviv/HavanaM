@@ -8,6 +8,7 @@ import {
   Platform,
   Alert,
   StyleSheet,
+  ScrollView,
   View,
   SafeAreaView,
   Button,
@@ -147,11 +148,15 @@ const Reports = ({route, navigation}) => {
               dateFormat="MM/yyyy"
               showMonthYearPicker
           />
+        <ScrollView>
           <SectionList 
-              sections={[{title: 'aa',
-                          data: ['Alex', 'Alina']}]}
+              sections={monthlyReportData}
               renderItem={ renderItem }
+              renderSectionHeader={({ section: { title } }) => (
+                <Text style={styles.header}>{title}</Text>
+              )}      
               keyExtractor={(item, index) => index}/>
+        </ScrollView>
     </View>
   );
 };
@@ -159,6 +164,13 @@ const Reports = ({route, navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  title: {
+    fontSize: 24
+  },  
+  header: {
+    fontSize: 32,
+    backgroundColor: "#fff"
   },
   fitToText: {
     flexDirection: 'row',
