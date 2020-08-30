@@ -138,7 +138,7 @@ const Reports = ({route, navigation}) => {
   }
 
   return (
-    <View styles={styles.container}>
+    <View style={styles.container}>
           <DatePicker
               calendarContainer={HebContainer}
               selected={startDate}
@@ -148,7 +148,6 @@ const Reports = ({route, navigation}) => {
               dateFormat="MM/yyyy"
               showMonthYearPicker
           />
-        <ScrollView>
           <SectionList 
               sections={monthlyReportData}
               renderItem={ renderItem }
@@ -156,14 +155,13 @@ const Reports = ({route, navigation}) => {
                 <Text style={styles.header}>{title}</Text>
               )}      
               keyExtractor={(item, index) => index}/>
-        </ScrollView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flex: 1
   },
   title: {
     fontSize: 24
