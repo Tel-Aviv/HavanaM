@@ -1,3 +1,4 @@
+const regeneratorRuntime = require("regenerator-runtime");
 import { AppRegistry } from 'react-native';
 import App from './App';
 

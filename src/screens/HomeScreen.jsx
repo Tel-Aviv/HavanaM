@@ -3,7 +3,7 @@
  */
 import React, {useState, useEffect, useContext, useReducer} from 'react';
 import axios from 'axios';
-import { NavigationContainer } from '@react-navigation/native';
+import MockAdapter from 'axios-mock-adapter';
 
 import Reports from '../tabs/Reports';
 import Profile from '../tabs/Profile';
@@ -92,10 +92,65 @@ const HomeScreen = (props) => {
 
         let data = [];
 
+        // let response = await authContext.API.get(`/daysoff`, {
+        //       params: {
+        //         year: year,
+        //         month: month
+        //     }, 
+        //       withCredentials: true
+        //     });
+        // console.log(response)
+
+        // This sets the mock adapter on the default instance
+        // let _axios = axios.create({
+        //   baseURL: `http://bizdev01/ps`
+        // })
+        // const mock = new MockAdapter(_axios);
+        // mock.onGet('/daysoff').reply(200, {
+        //   "items":[
+        //     {
+        //         "date":"2020-07-30T00:00:00",
+        //         "description":"תשעה באב"
+        //     }
+        //   ]
+        // })
+        // let response = await _axios.get("/daysoff");
+        // console.log(response.data);
+        
+
+        // // Mock any GET request to /users
+        // // arguments for reply are (status, data, headers)
+        // mock.onGet("/users").reply(200, {
+        //   users: [{ id: 1, name: "John Smith" }],
+        // });
+        // let response = await axios.get("/users");
+        // console.log(response.data);
+
         let respArr = await axios.all([
-            authContext.API.get(`/daysoff?year=${year}&month=${month}`, { withCredentials: true }),
-            authContext.API.get(`/me/reports/status?month=${month}&year=${year}`, { withCredentials: true }),
-            authContext.API.get(`/me/manual_updates?year=${year}&month=${month}`, { withCredentials: true })
+        //     authContext.API.get(`/daysoff?year=${year}&month=${month}`, { withCredentials: true }),
+              authContext.API.get(`/daysoff`, {
+                params: {
+                  year: year,
+                  month: month
+              }, 
+                withCredentials: true
+              }),
+        //     // authContext.API.get(`/me/reports/status?month=${month}&year=${year}`, { withCredentials: true }),
+              authContext.API.get(`/me/reports`, {
+                params: {
+                  month: month,
+                  year: year
+                },
+                withCredentials: true 
+              }),
+        //     // authContext.API.get(`/me/manual_updates?year=${year}&month=${month}`, { withCredentials: true })
+                authContext.API.get(`/me/manual_updates`, {
+                  params: {
+                    year: year,
+                    month: month
+                  },
+                  withCredentials: true 
+                })
         ]);
         data = respArr[0].data.items.map(
           (item) => new Date(Date.parse(item.date)),
@@ -116,7 +171,14 @@ const HomeScreen = (props) => {
           if (savedReportId) {
             // Interim report found. Actually the following call gets
             // the merged report: saved changes over the original data
-            _resp = await authContext.API.get(`/me/reports/saved?savedReportGuid=${savedReportId}`, { withCredentials: true }
+            // _resp = await authContext.API.get(`/me/reports/saved?savedReportGuid=${savedReportId}`, { withCredentials: true }
+            _resp = await authContext.API.get(`/me/reports/saved`, {
+              params: 
+              {
+                savedReportGuid: savedReportId
+              },
+              withCredentials: true 
+              }
             );
           } else {
             reportId = respArr[1].data.reportId;
@@ -153,9 +215,7 @@ const HomeScreen = (props) => {
 
   return (
     <DataContext.Provider value={reportData}>
-      <NavigationContainer>
         <HavanaTabs />
-      </NavigationContainer>
     </DataContext.Provider>
   );
 };

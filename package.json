@@ -32,7 +32,12 @@
     "build": "webpack -d --watch"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.11.0",
+    "axios-mock-adapter": "^1.18.2",
+    "babel-jest": "^26.3.0",
     "clean-webpack-plugin": "^3.0.0",
+    "jest": "^26.4.2",
+    "react-test-renderer": "^16.13.1",
     "webpack-cli": "^3.3.12",
     "webpack-copy-after-build-plugin": "^1.0.1"
   }
