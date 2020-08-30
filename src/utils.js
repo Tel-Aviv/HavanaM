@@ -37,8 +37,12 @@ export const API = axios.create({
 
 const mock = new MockAdapter(API);
 
-mock.onAny('/me', {
-    
+mock.onAny('/me')
+    .reply(200, {
+    "userAccountName": "c1306948",
+    "userName": "אולג קליימן - טכנולוג אינטגרצייה",
+    "isManager": false,
+    "ID": "313069486"    
 })
 
 mock.onAny('/daysoff')
