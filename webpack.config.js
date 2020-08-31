@@ -4,7 +4,7 @@ var path = require('path');
 
 module.exports = {
     entry: { 
-        mobile: [path.resolve(__dirname, './src/index.jsx')]
+        mobile: ["@babel/polyfill", path.resolve(__dirname, './src/index.jsx')]
     },
 
     module: {

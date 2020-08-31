@@ -1,6 +1,4 @@
-/**
- * @format
- */
+ const regeneratorRuntime = require("regenerator-runtime");
 import React, {useState, useEffect, useContext, useReducer} from 'react';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
@@ -91,41 +89,6 @@ const HomeScreen = (props) => {
         const month = now.getMonth(); // + 1;
 
         let data = [];
-
-        // let response = await authContext.API.get(`/daysoff`, {
-        //       params: {
-        //         year: year,
-        //         month: month
-        //     }, 
-        //       withCredentials: true
-        //     });
-        // console.log(response)
-
-        // This sets the mock adapter on the default instance
-        // let _axios = axios.create({
-        //   baseURL: `http://bizdev01/ps`
-        // })
-        // const mock = new MockAdapter(_axios);
-        // mock.onGet('/daysoff').reply(200, {
-        //   "items":[
-        //     {
-        //         "date":"2020-07-30T00:00:00",
-        //         "description":"תשעה באב"
-        //     }
-        //   ]
-        // })
-        // let response = await _axios.get("/daysoff");
-        // console.log(response.data);
-        
-
-        // // Mock any GET request to /users
-        // // arguments for reply are (status, data, headers)
-        // mock.onGet("/users").reply(200, {
-        //   users: [{ id: 1, name: "John Smith" }],
-        // });
-        // let response = await axios.get("/users");
-        // console.log(response.data);
-
         let respArr = await axios.all([
         //     authContext.API.get(`/daysoff?year=${year}&month=${month}`, { withCredentials: true }),
               authContext.API.get(`/daysoff`, {
