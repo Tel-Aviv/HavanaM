@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Text, View } from 'react-native';
 import moment from 'moment';
-import { DatePicker, List } from 'antd-mobile';
+import { DatePicker, List, InputItem, WhiteSpace, Icon, Picker } from 'antd-mobile';
 import enUs from 'antd-mobile/lib/date-picker/locale/en_US';
 
 const EditRecord = ({route, navigation}) => {
 
     const [enterTime, setEnterTime] = useState();
     const [exitTime, setExitTime] = useState();
+    const [notes, setNotes] = useState('')
+    const [reportCode, setReportCode] = useState([1])
 
     const item = route.params.item;
 
@@ -19,9 +21,26 @@ const EditRecord = ({route, navigation}) => {
         setExitTime(_exitTime.toDate());
     }, [route.params.item]);
 
+    const reportCodes = [
+        {
+            label: 'one',
+            value: 1
+        }, {
+            label: 'two',
+            value: 2
+        }
+    ]
+
+    const onReportCodeChanged = (v) => {
+        setReportCode(v)
+    }
+
     return (
         <View>
-            <Text>Edit</Text>
+            <View>
+                <Icon type='left' size='lg'/>
+                <Text>{item.date}</Text>
+            </View>
             <List className="date-picker-list" style={{ backgroundColor: 'white' }}>
                 <DatePicker 
                     value={enterTime}
@@ -42,7 +61,27 @@ const EditRecord = ({route, navigation}) => {
                     <List.Item arrow="horizontal">Exit time</List.Item>
                 </DatePicker>                   
             </List>
+            <WhiteSpace />
+            <List>
+                <InputItem 
+                    placeholder="Notes"
+                    clear
+                    onChange={ val => setNotes(val)}>
+                    Notes
+                </InputItem>
+            </List>
+            <WhiteSpace />
+            <List>
+                <Picker data={reportCodes}
+                    cols={1}
+                    value={reportCode}
+                    onOk={onReportCodeChanged}>
+                    <List.Item arrow="horizontal">Report Code</List.Item>
+                </Picker>    
+            </List>
+            <WhiteSpace />
             <button onClick={() => navigation.goBack()}>BACK</button>
+            <button>UPDATE</button>
         </View>
     )
 }
