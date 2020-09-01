@@ -30,9 +30,9 @@ const lightThemeColor = '#EBF9F9';
 const Reports = ({route, navigation}) => {
   const [startDate, setStartDate] = useState(new Date());
   const [monthlyReportData, setMonthlyReportData] = useState([]);
-  const {reportData, daysOff} = useContext(DataContext);
-  console.log(reportData);
-  console.log(daysOff);
+  
+  const {reportData, daysOff, manualUpdates, reportCodes} = useContext(DataContext);
+  console.log(reportCodes);
 
   // const bs = React.createRef();
 
@@ -43,7 +43,7 @@ const Reports = ({route, navigation}) => {
         const date = moment(item.rdate).format('YYYY-MM-DD');
 
         return {
-          title: date,
+          title: `${date} (${item.dayOfWeek})`,
           data: [
             {
               entry: item.entry,
@@ -51,6 +51,7 @@ const Reports = ({route, navigation}) => {
               total: item.total,
               notes: item.notes,
               date: date,
+              reportCode: item.reportType
             },
           ],
         };
@@ -66,6 +67,7 @@ const Reports = ({route, navigation}) => {
 
     navigation.navigate('Edit Record', {
       item: item,
+      reportCodes: reportCodes
     });
   };
 
@@ -95,6 +97,7 @@ const Reports = ({route, navigation}) => {
     return (
       <TouchableOpacity onPress={() => itemPressed(item)} style={styles.item}>
         <View style={styles.timesSection}>
+          <Text>Record Code: {item.reportCode || 'casual'}</Text>
           <Text style={styles.itemHourText}>Enter: {item.entry}</Text>
           <Text style={styles.itemHourText}>Exit: {item.exit}</Text>
           <Text style={styles.itemDurationText}>Total: {item.total}</Text>
@@ -167,8 +170,9 @@ const styles = StyleSheet.create({
     fontSize: 24
   },  
   header: {
-    fontSize: 32,
-    backgroundColor: "#fff"
+    fontSize: 8,
+    backgroundColor: "red",
+    direction: 'ltr'
   },
   fitToText: {
     flexDirection: 'row',

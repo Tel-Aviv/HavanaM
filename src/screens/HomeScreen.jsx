@@ -13,7 +13,7 @@ import { DataContext } from '../DataContext';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 const Tabs = createBottomTabNavigator();
 
-const HavanaTabs = (props) => 
+const HavanaTabs = () => 
     <Tabs.Navigator
         initialRouteName="Reports"
         tabBarOptions={{
@@ -22,7 +22,6 @@ const HavanaTabs = (props) =>
         <Tabs.Screen
             name="Reports"
             component={Reports}
-            initialParams={props.reportData}
             options={{
                 tabBarLabel: 'Reports'
             }}
@@ -63,6 +62,12 @@ const dataReducer = (prevState, action) => {
         manualUpdates: action.data,
       };
 
+    case 'SET_REPORT_CODES':
+      return {
+        ...prevState,
+        reportCodes: action.data
+      }
+
     default:
       return {
         ...prevState,
@@ -71,13 +76,20 @@ const dataReducer = (prevState, action) => {
 };
 
 const HomeScreen = (props) => {
+  
+  // All parameters gathered in API will be passed downward 
+  // thru DataContext because it's not convinient to use Tab's params for this purpose (but possible).
+  // That's why we use old-fashion initial state and reducer hook here instead of useState() hook here
   const initialState = {
     reportData: [],
     daysOff: [],
     manualUpdates: [],
+    reportCodes: []
   };
   const [reportData, dispatch] = useReducer(dataReducer, initialState);
-
+  const [employerCode, setEmployerCode] = useState();
+  const [reportCodes, setReportCodes] = useState([]);
+  
   const authContext = useContext(AuthContext);
 
   useEffect(() => {
@@ -99,7 +111,7 @@ const HomeScreen = (props) => {
                 withCredentials: true
               }),
         //     // authContext.API.get(`/me/reports/status?month=${month}&year=${year}`, { withCredentials: true }),
-              authContext.API.get(`/me/reports`, {
+              authContext.API.get(`/me/reports/status`, {
                 params: {
                   month: month,
                   year: year
@@ -126,18 +138,31 @@ const HomeScreen = (props) => {
         let reportId = 0;
 
         if (respArr[1].data) {
-          // check report's status
 
+          // check report's status
           const savedReportId = respArr[1].data.saveReportId;
 
           let _resp;
           if (savedReportId) {
+
+            const reportStatus = respArr[1].data;
+            setEmployerCode(reportStatus.employerCode || 0)
+
+            _resp = await authContext.API.get('/me/report_codes', {
+              params: {
+                id: authContext.user.userID,
+                employerCode: employerCode,
+                year: year,
+                month: month
+              }
+            })
+            dispatch({type: 'SET_REPORT_CODES', data: _resp.data.items});
+
             // Interim report found. Actually the following call gets
             // the merged report: saved changes over the original data
             // _resp = await authContext.API.get(`/me/reports/saved?savedReportGuid=${savedReportId}`, { withCredentials: true }
             _resp = await authContext.API.get(`/me/reports/saved`, {
-              params: 
-              {
+              params: {
                 savedReportGuid: savedReportId
               },
               withCredentials: true 

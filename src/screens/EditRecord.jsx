@@ -9,7 +9,7 @@ const EditRecord = ({route, navigation}) => {
     const [enterTime, setEnterTime] = useState();
     const [exitTime, setExitTime] = useState();
     const [notes, setNotes] = useState('')
-    const [reportCode, setReportCode] = useState([1])
+    const [reportCode, setReportCode] = useState([1]); // value of one of the report items
 
     const item = route.params.item;
 
@@ -21,16 +21,21 @@ const EditRecord = ({route, navigation}) => {
         setExitTime(_exitTime.toDate());
     }, [route.params.item]);
 
-    const reportCodes = [
-        {
-            label: 'one',
-            value: 1
-        }, {
-            label: 'two',
-            value: 2
-        }
-    ]
+    const initialreportCodes = [{
+        label: 'casual',
+        value: 1
+    }]
 
+    const reportCodes = [
+        ...initialreportCodes,
+        ...route.params.reportCodes.map( item => (
+            {
+                label: item.Description,
+                value: item.Code
+            }
+        ))
+    ]
+ 
     const onReportCodeChanged = (v) => {
         setReportCode(v)
     }
@@ -73,6 +78,9 @@ const EditRecord = ({route, navigation}) => {
             <WhiteSpace />
             <List>
                 <Picker data={reportCodes}
+                    title='Report Codes'
+                    okText='OK'
+                    dismissText='Cancel'
                     cols={1}
                     value={reportCode}
                     onOk={onReportCodeChanged}>
