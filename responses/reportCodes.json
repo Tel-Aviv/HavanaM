@@ -1,0 +1,21 @@
+{
+    "items":[{
+            "Code":10,
+            "Description":"חופשה מנוחה",
+            "ShortDecription":"חופשה",
+            "goodFor":2
+        },
+        {
+            "Code":20,
+            "Description":"מחלה",
+            "ShortDecription":"מחלה",
+            "goodFor":2
+        },
+        {
+            "Code":624,
+            "Description":"עבודה מהבית",
+            "ShortDecription":"ע.מהבית",
+            "goodFor":2
+        }
+    ]
+}
